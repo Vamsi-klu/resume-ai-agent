@@ -39,7 +39,7 @@ Before clicking Deploy, add these environment variables:
 | Variable | Value |
 |----------|-------|
 | `DATABASE_URL` | Your PostgreSQL connection string from Supabase/Neon |
-| `GEMINI_API_KEY` | `AIzaSyBbL2HGADDBpaICx8MLo0-Pwv5zq2wuZBg` |
+| `GEMINI_API_KEY` | `YOUR_GEMINI_API_KEY_HERE` |
 | `JWT_SECRET` | Generate one below 👇 |
 
 **Generate JWT Secret:**
