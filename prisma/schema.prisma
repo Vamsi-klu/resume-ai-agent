@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  lastLoginAt  DateTime?
+  
+  sessions     Session[]
+  resumes      Resume[]
+  analyses     Analysis[]
+  feedback     Feedback[]
+  queryUsage   QueryUsage[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([token])
+  @@index([userId])
+}
+
+model Resume {
+  id            String   @id @default(uuid())
+  userId        String
+  fileName      String
+  fileType      String
+  filePath      String
+  fileSize      Int
+  extractedText String?  @db.Text
+  createdAt     DateTime @default(now())
+  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analyses      Analysis[]
+  
+  @@index([userId])
+}
+
+model Analysis {
+  id              String   @id @default(uuid())
+  userId          String
+  resumeId        String
+  jobDescription  String   @db.Text
+  model           String   // gemini-1.5-flash, gemini-1.5-pro, gemini-2.0-flash
+  matchPercentage Float?
+  insights        Json?
+  recommendations Json?
+  rawResponse     String?  @db.Text
+  createdAt       DateTime @default(now())
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume          Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([resumeId])
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  userId    String
+  rating    Int      // 1-5 stars
+  category  String   // suggestion, bug, feature, other
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+model QueryUsage {
+  id             String   @id @default(uuid())
+  userId         String
+  queryTimestamp DateTime @default(now())
+  
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([queryTimestamp])
+}
